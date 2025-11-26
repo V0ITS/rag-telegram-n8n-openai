@@ -1,0 +1,14 @@
+services:
+  n8n:
+    image: n8nio/n8n
+    container_name: n8n
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_PORT=5678
+      - N8N_HOST=0.0.0.0
+      - WEBHOOK_URL=https://unoriginal-janiyah-authorless.ngrok-free.dev
+      - GENERIC_TIMEZONE=Asia/Jakarta
+    volumes:
+      - ./n8n_data:/home/node/.n8n
+    restart: unless-stopped
