@@ -1,0 +1,105 @@
+{
+  "name": "My workflow 2",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "webapp-qa",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "2c1593f1-d738-46d0-8ac3-53fe9fd36940",
+      "name": "Webhook",
+      "webhookId": "ddf353bb-cce0-4891-bcf8-296e64308dc9"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4.1",
+          "mode": "list",
+          "cachedResultName": "GPT-4.1"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=={{ $json.body.question }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        208,
+        0
+      ],
+      "id": "e927c91b-2f74-4420-b04a-45aeea6bf9ca",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": "WvAHKwyLQ7mpQTa9",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"answer\": $json.message.content } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        560,
+        0
+      ],
+      "id": "dc4b54cb-3e59-4b63-8ea5-5bc0a5a9a6f8",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "e989cb2c-dece-4619-90c5-44ad365852fb",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "18e373fe26bfee21ce6d602324b532d7014f45a73534adc431c95ea409adbae4"
+  },
+  "id": "JFPbj92iwvrkEqyL",
+  "tags": []
+}
