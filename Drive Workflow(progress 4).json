@@ -1,14 +1,14 @@
 {
-  "name": "Workflow Progress 4",
+  "name": "Drive Workflow(progress 4)",
   "nodes": [
     {
       "parameters": {
         "mode": "insert",
         "pineconeIndex": {
           "__rl": true,
-          "value": "n8n",
+          "value": "rag-vector",
           "mode": "list",
-          "cachedResultName": "n8n"
+          "cachedResultName": "rag-vector"
         },
         "options": {}
       },
@@ -16,14 +16,14 @@
       "typeVersion": 1.3,
       "position": [
         272,
-        -176
+        -16
       ],
-      "id": "a86e6804-5160-457f-8b69-d4c39c50aa97",
+      "id": "1e47b29c-3dfa-42da-82ad-1885862cbb4e",
       "name": "Pinecone Vector Store",
       "credentials": {
         "pineconeApi": {
-          "id": "NWVHOwN5fIDXSZ0d",
-          "name": "PineconeApi account"
+          "id": "775BZc8yMw3JLt7G",
+          "name": "PineconeApi account 2"
         }
       }
     },
@@ -35,13 +35,13 @@
       "typeVersion": 1.2,
       "position": [
         160,
-        48
+        208
       ],
-      "id": "f6381a3c-d575-43cf-b059-92ca5abb91cc",
+      "id": "db04570c-bc21-4f81-864e-670b7d5e3fe8",
       "name": "Embeddings OpenAI",
       "credentials": {
         "openAiApi": {
-          "id": "2uvqmAcIYmjuOE7e",
+          "id": "WvAHKwyLQ7mpQTa9",
           "name": "OpenAi account"
         }
       }
@@ -56,9 +56,9 @@
       "typeVersion": 1.1,
       "position": [
         528,
-        16
+        176
       ],
-      "id": "adfaedd8-4d10-43d8-99ab-9a0e12d8be1b",
+      "id": "3eaaded3-1447-4d6c-a8c7-46de1424aaff",
       "name": "Default Data Loader"
     },
     {
@@ -71,9 +71,9 @@
       "typeVersion": 1,
       "position": [
         480,
-        176
+        336
       ],
-      "id": "6d3f206f-8ffc-4a48-91cc-bad7ad7618ed",
+      "id": "9b8ed889-4385-4738-9a94-a11d04956d02",
       "name": "Recursive Character Text Splitter1"
     },
     {
@@ -81,7 +81,7 @@
         "operation": "download",
         "fileId": {
           "__rl": true,
-          "value": "https://drive.google.com/file/d/1EFa-MDPYaLQe8SgxPlsFW5spGVTJ0nJ-/view?usp=sharing",
+          "value": "https://docs.google.com/document/d/1VXN0u_-wbjQiffbH-MCqbiMqypqvQkhOSSWJqifzuOE/edit?usp=sharing",
           "mode": "url"
         },
         "options": {}
@@ -90,13 +90,13 @@
       "typeVersion": 3,
       "position": [
         96,
-        -176
+        -16
       ],
-      "id": "dc09eea6-e1eb-46ec-9a07-347e8d39fd56",
+      "id": "fa2f4fca-7582-4150-8a75-0c770f594d33",
       "name": "Download file",
       "credentials": {
         "googleDriveOAuth2Api": {
-          "id": "zDvo1k70I9AFa128",
+          "id": "mqe1wvg0VGneSbCZ",
           "name": "Google Drive account"
         }
       }
@@ -107,9 +107,9 @@
       "typeVersion": 1,
       "position": [
         -128,
-        -176
+        -16
       ],
-      "id": "7c80c3fd-b785-4192-b4c0-4d29c5817ac0",
+      "id": "65ec985c-ab03-490e-a31f-27d910f6ac8d",
       "name": "When clicking ‘Execute workflow’"
     }
   ],
@@ -175,11 +175,11 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "130ed03f-da26-4a98-8559-5364d04bd49c",
+  "versionId": "5c8aeef7-7ded-46ff-b3ec-59dac885cff0",
   "meta": {
     "templateCredsSetupCompleted": true,
-    "instanceId": "2f6bb680a55db80494bf730c60c2c52cd9449c47989424d01d77d0c5ae933531"
+    "instanceId": "18e373fe26bfee21ce6d602324b532d7014f45a73534adc431c95ea409adbae4"
   },
-  "id": "ST8BlwkC5QQmL4ii",
+  "id": "KYKLc03lnonOPx2v",
   "tags": []
 }
