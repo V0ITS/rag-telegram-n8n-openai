@@ -1,0 +1,633 @@
+{
+  "name": "Telegram AI bot with LangChain nodes",
+  "nodes": [
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "options": {
+          "temperature": 1
+        }
+      },
+      "id": "e275f31f-6a5f-4444-8bf7-6c003a8e53df",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        512,
+        448
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "openAiApi": {
+          "id": "C5MflJ5jwjKR5Mfr",
+          "name": "OpenAi account 5"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Listen for incoming events').first().json.message.from.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "96faef5d-0349-47fe-a7cf-150953490e90",
+      "name": "Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        1104,
+        368
+      ],
+      "typeVersion": 1.1,
+      "webhookId": "0d0f77b1-076b-4954-888e-b5bc98b66f02",
+      "credentials": {
+        "telegramApi": {
+          "id": "K22dyHOdcssB9dTY",
+          "name": "Telegram account 5"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').first().json.message.chat.id }}\n",
+        "text": "={{ $('AI Agent').item.json.output.replace(/&/g, \"&amp;\").replace(/>/g, \"&gt;\").replace(/</g, \"&lt;\").replace(/\"/g, \"&quot;\") }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "5ad43039-aaa6-43cd-9b0f-1d02f4d9c4ff",
+      "name": "Correct errors",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        1344,
+        400
+      ],
+      "typeVersion": 1.1,
+      "webhookId": "e33e0672-4a19-448a-817c-91bb2b859525",
+      "credentials": {
+        "telegramApi": {
+          "id": "K22dyHOdcssB9dTY",
+          "name": "Telegram account 5"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendPhoto",
+        "chatId": "={{ $('Execute Workflow Trigger').first().json.chat_id }}",
+        "file": "={{ $json.data[0].url }}",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "2f5d5f25-9870-40d6-ad42-52750e62de63",
+      "name": "Send back an image",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        688,
+        2016
+      ],
+      "typeVersion": 1.1,
+      "webhookId": "c516e4a1-3585-49d0-bf5d-4a9ffecd81c0",
+      "credentials": {
+        "telegramApi": {
+          "id": "K22dyHOdcssB9dTY",
+          "name": "Telegram account 5"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fields": {
+          "values": [
+            {
+              "name": "response",
+              "stringValue": "Success"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "50b43dbf-39e3-4d00-8e47-01e8c193cd1a",
+      "name": "add response field",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        864,
+        2016
+      ],
+      "typeVersion": 3.2
+    },
+    {
+      "parameters": {
+        "content": "## Generate an image with Dall-E 3 and send it via Telegram",
+        "height": 247.42081447963798,
+        "width": 752.0361990950231
+      },
+      "id": "171bee83-c8e1-4af3-9d1c-12cb6ede4943",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        288,
+        1952
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/images/generations",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "dall-e-3"
+            },
+            {
+              "name": "prompt",
+              "value": "={{ $json.query }}"
+            },
+            {
+              "name": "n",
+              "value": 1
+            },
+            {
+              "name": "size",
+              "value": "1024x1024"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "39d532d3-8c96-4722-9cb0-cad92ff39e94",
+      "name": "Generate image in Dall-E 3",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        512,
+        2016
+      ],
+      "typeVersion": 4.1,
+      "credentials": {
+        "openAiApi": {
+          "id": "49QMkxkUx2VQdKbq",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "question",
+              "value": "={{ $json.body?.message || $json.message?.text || $json.message || '' }}"
+            }
+          ]
+        },
+        "options": {
+          "keepOnlySet": true
+        }
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1.1,
+      "position": [
+        440,
+        240
+      ],
+      "id": "set_node_agent_1",
+      "name": "Set"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "query",
+              "value": "tes"
+            }
+          ]
+        },
+        "options": {
+          "keepOnlySet": true
+        }
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1.1,
+      "position": [
+        736,
+        720
+      ],
+      "id": "set_test_pinecone",
+      "name": "Test Query"
+    },
+    {
+      "parameters": {
+        "agent": "openAiFunctionsAgent",
+        "text": "={{ $json.question }}",
+        "options": {}
+      },
+      "id": "e5aa496d-55d3-456b-82bb-fe10a06c7338",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        576,
+        240
+      ],
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        304,
+        240
+      ],
+      "id": "0a425e11-97fb-4d68-b993-cf56cfe3d6c2",
+      "name": "Telegram Trigger",
+      "webhookId": "f7b24e5c-6669-4601-bc0b-30f3d4ca7c00",
+      "credentials": {
+        "telegramApi": {
+          "id": "K22dyHOdcssB9dTY",
+          "name": "Telegram account 5"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "bc3934df-8d10-48df-9960-f0db1e806328",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        320,
+        448
+      ],
+      "id": "c70933a7-6e5f-43d9-bbac-bb5cb2f2f336",
+      "name": "Webhook",
+      "webhookId": "bc3934df-8d10-48df-9960-f0db1e806328"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { output: $json.output } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        1152,
+        208
+      ],
+      "id": "4b78d018-9727-4628-9905-cea3fe6c42de",
+      "name": "Respond to Webhook1"
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "This tool retrieves relevant context from Pinecone based on the user's query by performing vector similarity search.\n\nWAJIB gunakan tool ini untuk semua pertanyaan tentang fakta, informasi, presiden, sejarah, teknologi, atau data spesifik apapun. Selalu cari di knowledge base terlebih dahulu sebelum menjawab.\n",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "rag-vector",
+          "mode": "list",
+          "cachedResultName": "rag-vector"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        736,
+        544
+      ],
+      "id": "5a308277-f138-4aa3-85fb-1680c72218e6",
+      "name": "Pinecone Vector Store",
+      "credentials": {
+        "pineconeApi": {
+          "id": "NeAr6Y3hskEFsvrV",
+          "name": "PineconeApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        768,
+        752
+      ],
+      "id": "7b2a9931-c033-45d6-be82-6d7737eeca94",
+      "name": "Embeddings OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "C5MflJ5jwjKR5Mfr",
+          "name": "OpenAi account 5"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionKey": "={{ $json.body.chatId }}",
+        "contextWindowLength": 10
+      },
+      "id": "f25a6666-ff23-4372-afd0-4920a99aab6a",
+      "name": "Window Buffer Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [
+        416,
+        656
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "web-app"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        528,
+        624
+      ],
+      "id": "89837fa7-b487-4080-a15c-f3e9cc166132",
+      "name": "Postgres Chat Memory",
+      "credentials": {
+        "postgres": {
+          "id": "XxFClHWWURMjABSj",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "description": "call this tool to spesify",
+        "workflowId": {
+          "__rl": true,
+          "value": "Cx9z9gxJ6Ix8HOBx",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/Cx9z9gxJ6Ix8HOBx",
+          "cachedResultName": "Drive LangChain"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {}
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        656,
+        624
+      ],
+      "id": "952cd373-402d-466f-b382-34668b130826",
+      "name": "Call 'Drive LangChain'"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "0fab176b-0a8c-4f35-adb2-2c9e11c3cbd9",
+              "leftValue": "={{ $('Webhook').isExecuted }}",
+              "rightValue": "web-app",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        880,
+        272
+      ],
+      "id": "530d99fa-c998-4f1a-ad78-d8f9a47f5143",
+      "name": "If"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Correct errors",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send back an image": {
+      "main": [
+        [
+          {
+            "node": "add response field",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate image in Dall-E 3": {
+      "main": [
+        [
+          {
+            "node": "Send back an image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Set",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Set",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Webhook1": {
+      "main": [
+        []
+      ]
+    },
+    "Pinecone Vector Store": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ],
+      "main": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Test Query": {
+      "main": [
+        [
+          {
+            "node": "Embeddings OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory": {
+      "ai_memory": [
+        []
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call 'Drive LangChain'": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "681d6a56-9bad-40b2-aa4e-c42ac2dd18a2",
+  "meta": {
+    "templateId": "2035",
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f710b3bb27cae3091c6762abac7b81d1dbcc3a1de09a3baa45702bd7910d3ae6"
+  },
+  "id": "DUBLsqlqDrvC1jgu",
+  "tags": []
+}

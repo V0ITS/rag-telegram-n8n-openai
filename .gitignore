@@ -1,0 +1,7 @@
+﻿n8n_data/
+.env
+.env.local
+.env*.local
+node_modules/
+.next/
+*.log

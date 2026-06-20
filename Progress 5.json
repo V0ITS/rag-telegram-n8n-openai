@@ -1,0 +1,428 @@
+{
+  "name": "Progress 5",
+  "nodes": [
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "options": {
+          "temperature": 0.5
+        }
+      },
+      "id": "d2f1a57f-0535-4998-a88c-306a6e1396cd",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        -368,
+        336
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "openAiApi": {
+          "id": "WvAHKwyLQ7mpQTa9",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.message.from.id }}\n",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "a47c65b1-8f7a-4338-8a9d-f11b7c6060d3",
+      "name": "Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        336,
+        80
+      ],
+      "typeVersion": 1.1,
+      "webhookId": "0d0f77b1-076b-4954-888e-b5bc98b66f02",
+      "credentials": {
+        "telegramApi": {
+          "id": "KevSpFB4dk1ORias",
+          "name": "Telegram account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').first().json.message.chat.id }}\n",
+        "text": "={{ $('AI Agent').item.json.output.replace(/&/g, \"&amp;\").replace(/>/g, \"&gt;\").replace(/</g, \"&lt;\").replace(/\"/g, \"&quot;\") }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "fab85841-03db-4032-80ff-b3898c48ae78",
+      "name": "Correct errors",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        576,
+        112
+      ],
+      "typeVersion": 1.1,
+      "webhookId": "e33e0672-4a19-448a-817c-91bb2b859525",
+      "credentials": {
+        "telegramApi": {
+          "id": "KevSpFB4dk1ORias",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "agent": "openAiFunctionsAgent",
+        "text": "={{ $json.body?.message || $json.message?.text || $json.message || '' }}",
+        "options": {
+          "systemMessage": "Kamu adalah asisten AI yang membantu menjawab pertanyaan berdasarkan knowledge base.\n\nATURAN PENTING:\n1. SELALU gunakan Pinecone Vector Store tool terlebih dahulu untuk mencari informasi di knowledge base\n2. JANGAN PERNAH membuat atau mengarang informasi yang tidak ada di knowledge base\n3. Jika data tidak ditemukan di knowledge base, katakan dengan jujur: \"Maaf, saya tidak menemukan informasi tersebut di knowledge base. Silakan coba dengan kata kunci lain atau hubungi admin untuk menambahkan informasi tersebut.\"\n4. HANYA jawab berdasarkan data yang ditemukan dari tool Pinecone Vector Store\n5. Jika hasil pencarian kosong atau tidak relevan, jangan membuat jawaban sendiri\n6. Jangan mengarang nama produk, stok, harga, atau informasi spesifik apapun yang tidak ada di knowledge base\n\nIngat: Lebih baik mengatakan \"tidak tahu\" daripada memberikan informasi yang salah atau dibuat-buat."
+        }
+      },
+      "id": "92b300ec-47e7-4d03-aafc-fa3b57abad16",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        -176,
+        -64
+      ],
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -464,
+        -48
+      ],
+      "id": "d40cf608-9875-48f0-8181-6fcb61c5721a",
+      "name": "Telegram Trigger",
+      "webhookId": "f7b24e5c-6669-4601-bc0b-30f3d4ca7c00",
+      "credentials": {
+        "telegramApi": {
+          "id": "KevSpFB4dk1ORias",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "bc3934df-8d10-48df-9960-f0db1e806328",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -448,
+        160
+      ],
+      "id": "31ef27c8-0a36-44cd-a6c4-f2f8bdc7fd1c",
+      "name": "Webhook",
+      "webhookId": "bc3934df-8d10-48df-9960-f0db1e806328"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { output: $json.output } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        384,
+        -80
+      ],
+      "id": "42fe71da-abc3-4ebb-a02f-0b2be915691f",
+      "name": "Respond to Webhook1"
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "This tool retrieves relevant context from Pinecone knowledge base based on the user's query.\n\nATURAN WAJIB:\n1. WAJIB gunakan tool ini untuk SEMUA pertanyaan tentang fakta, informasi, produk, stok, harga, atau data spesifik apapun\n2. JANGAN pernah menjawab pertanyaan tentang data spesifik tanpa menggunakan tool ini terlebih dahulu\n3. Jika tool ini mengembalikan hasil kosong atau tidak relevan, katakan bahwa data tidak ditemukan\n4. JANGAN membuat atau mengarang data jika tool ini tidak menemukan hasil\n\nTool ini adalah SATU-SATUNYA sumber data yang valid. Jika tidak ada hasil dari tool ini, berarti data tidak ada di knowledge base.",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "rag-vector",
+          "mode": "list"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        -32,
+        144
+      ],
+      "id": "e3294abf-f65d-4c67-9f84-e6a840abd198",
+      "name": "Pinecone Vector Store",
+      "credentials": {
+        "pineconeApi": {
+          "id": "775BZc8yMw3JLt7G",
+          "name": "PineconeApi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        336
+      ],
+      "id": "5e5ca662-b2ec-4b60-815c-7cae332f1cf1",
+      "name": "Embeddings OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "WvAHKwyLQ7mpQTa9",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json }}",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        -224,
+        336
+      ],
+      "id": "b450351c-b45b-447a-8d25-6c87e7125f8a",
+      "name": "Postgres Chat Memory",
+      "credentials": {
+        "postgres": {
+          "id": "eGrYvC5Y1wAFl3xS",
+          "name": "Postgres account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "0fab176b-0a8c-4f35-adb2-2c9e11c3cbd9",
+              "leftValue": "={{ $('Webhook').isExecuted }}",
+              "rightValue": "web-app",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        112,
+        -16
+      ],
+      "id": "2c811a31-69e0-4f7e-b2d8-5828fb5954d6",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "options": {
+          "gl": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Country', ``, 'string') }}",
+          "hl": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Language', ``, 'string') }}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolSerpApi",
+      "typeVersion": 1,
+      "position": [
+        288,
+        352
+      ],
+      "id": "515d2257-d4e1-40c0-9733-279e3560627a",
+      "name": "SerpAPI",
+      "credentials": {
+        "serpApi": {
+          "id": "HDCmsoViBUil7QQP",
+          "name": "SerpAPI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "description": "Gunakan tool ini untuk mencari dan memproses file dari Google Drive berdasarkan query user. \nTool ini akan:\n   - Mencari file di folder Google Drive berdasarkan query\n   - Download file yang relevan\n   - Memproses file dan menyimpannya ke Pinecone Vector Store\n   \n   WAJIB gunakan tool ini ketika user meminta:\n   - File tertentu dari Google Drive\n   - Informasi dari dokumen\n   - Upload atau proses file\n   - Atau query yang memerlukan akses ke file di Google Drive\n   \n   Input: query (string) - kata kunci untuk mencari file",
+        "workflowId": {
+          "__rl": true,
+          "value": "KYKLc03lnonOPx2v",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/KYKLc03lnonOPx2v",
+          "cachedResultName": "Drive Workflow(progress 4)"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {}
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        -112,
+        352
+      ],
+      "id": "c854a554-34fa-4ed2-aa82-0b04670c48b7",
+      "name": "Call 'Drive Workflow(progress 4)'"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Correct errors",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pinecone Vector Store": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call 'Drive Workflow(progress 4)'": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "320d90aa-6a32-4405-886f-b34ab18107be",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "18e373fe26bfee21ce6d602324b532d7014f45a73534adc431c95ea409adbae4"
+  },
+  "id": "VohiysuPYT9vTome",
+  "tags": []
+}

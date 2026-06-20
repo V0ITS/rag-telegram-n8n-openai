@@ -1,0 +1,36 @@
+# Cloudflare Tunnel Configuration
+# File: cloudflare/tunnel-config.yaml
+# 
+# INSTRUKSI SETUP:
+# 1. Install cloudflared: https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/install-and-setup/installation/
+# 2. Login: cloudflared tunnel login
+# 3. Buat tunnel: cloudflared tunnel create rag-n8n-tunnel
+# 4. Copy Tunnel ID yang dihasilkan dan ganti <TUNNEL-UUID> di bawah
+# 5. Ganti <DOMAIN> dengan domain Anda (contoh: example.com)
+# 6. Jalankan: cloudflared tunnel run --config ./cloudflare/tunnel-config.yaml rag-n8n-tunnel
+
+tunnel: <TUNNEL-UUID>
+credentials-file: C:\Users\<USERNAME>\.cloudflared\<TUNNEL-UUID>.json
+# Untuk Linux/Mac: credentials-file: /home/<USERNAME>/.cloudflared/<TUNNEL-UUID>.json
+
+ingress:
+  # Route n8n interface melalui Cloudflare
+  - hostname: n8n.<DOMAIN>
+    service: http://localhost:5678
+  
+  # Route webhook endpoint untuk WebApp dan Telegram
+  - hostname: webhook.<DOMAIN>
+    service: http://localhost:5678
+  
+  # Catch-all: return 404 untuk hostname lain
+  - service: http_status:404
+
+# Optional: Metrics endpoint (untuk monitoring)
+# metrics: 0.0.0.0:9090
+
+# Optional: Logging
+# logfile: C:\Users\<USERNAME>\cloudflared\tunnel.log
+# Untuk Linux/Mac: logfile: /var/log/cloudflared/tunnel.log
+
+# Optional: Log level (debug, info, warn, error)
+# loglevel: info
